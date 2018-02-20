@@ -1,12 +1,37 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-class Button extends Component {
+class TaxForm extends Component {
+  state = {income: 0}
+
+  handleSubmit = event => {
+    event.preventDefault()
+  }
+
+  updateTax = event => {
+    this.setState({
+      income: event.target.value
+    })
+  }
+
   render() {
     return (
-      <button onClick={() => alert('hello')}>Hello</button>
-    );
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          Salary:
+          <input 
+            onChange={this.updateTax}
+            type="number" 
+          />
+        </label>
+
+        <br></br>
+
+        <label>
+          Income Tax: {this.income * 0.2}
+        </label>
+      </form>
+    )
   }
 }
 
@@ -14,11 +39,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <Button />
+        <TaxForm />
       </div>
     );
   }
