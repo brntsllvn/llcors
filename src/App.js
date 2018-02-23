@@ -4,31 +4,40 @@ import './App.css';
 function TaxItem(props) {
   return (
     <div>
-      {props.label} {props.value}
+      {props.label}: ${props.value}
     </div>
   )
 }
 
 
-class TaxForm extends Component {
-  state = {
-    income: 0, 
-    incomeTax: 0, 
-    socialSecurityTax: 0, 
-    medicareTax: 0, 
-    totalTax: 0
+function calculateTax(income, taxRate) {
+  if (!income) {
+    return 0;
+  } else {
+    return income * taxRate;
   }
+}
+
+function getTaxRate(taxName) {
+  var taxRates = {
+    'income': 0.2,
+    'social security': 0.124,
+    'medicare': 0.029,
+    'total': 0.353
+  }
+
+  if (!(taxRates[taxName])) {
+    throw 'Invalid tax name!'
+  }
+
+  return taxRates[taxName]
+}
+
+class TaxForm extends Component {
+  state = {income: 0}
 
   handleSubmit = event => {
     event.preventDefault()
-  }
-
-  calculateTax(income, taxRate) {
-    if (!income) {
-      return 0;
-    } else {
-      return income * taxRate;
-    }
   }
 
   updateTax = event => {
@@ -36,10 +45,6 @@ class TaxForm extends Component {
     this.setState({
       income: event.target.value
     })
-      // incomeTax: this.calculateTax(this.state.income, 0.2),
-      // socialSecurityTax: Math.round(this.state.income * 0.124 * 100) / 10,
-      // medicareTax: Math.round(this.state.income * 0.029 * 100) / 10,
-      // totalTax: Math.round(this.state.incomeTax + this.state.socialSecurityTax + this.state.medicareTax)
   }
 
   renderTaxItem(label, value) {
@@ -52,38 +57,19 @@ class TaxForm extends Component {
   }
 
   render() {
-    // const {incomeTax, socialSecurityTax, medicareTax, totalTax} = this.state
-
     return (
       <form onSubmit={this.handleSubmit}>
         <div>
-          Salary:
+          Salary: 
           <input 
             onChange={this.updateTax}
             type="number" 
           />
+          {this.renderTaxItem('Income Tax', calculateTax(this.state.income, getTaxRate('income')))}
+          {this.renderTaxItem('Social Security Tax', calculateTax(this.state.income, getTaxRate('social security')))}
+          {this.renderTaxItem('Medicare Tax', calculateTax(this.state.income, getTaxRate('medicare')))}
+          {this.renderTaxItem('Total Tax', calculateTax(this.state.income, getTaxRate('total')))}
         </div>
-
-        <div>
-          {this.renderTaxItem('Income Tax', this.calculateTax(this.state.income, 0.2))}
-
-        </div>
-{/*
-        <div>
-          Social Security Tax: {socialSecurityTax}
-        </div>
-
-        <div>
-          Medicare Tax: {medicareTax}
-        </div>
-
-        <div>
-          Total Tax: {totalTax}
-        </div>
-
-        <div>
-          Total Tax: {totalTax}
-        </div>*/}
       </form>
     )
   }
