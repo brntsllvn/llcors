@@ -188,6 +188,20 @@ class TaxForm extends Component {
 }
 
 class App extends Component {
+  state = {
+    llcIncome: 0, 
+    llcIncomeTax: 0,
+    llcSocialSecurityTax: 0,
+    llcMedicareTax: 0,
+    llcTotalTax: 0,
+    sCorpIncome: 0, 
+    sCorpDividend: 0,
+    sCorpIncomeTax: 0,
+    sCorpSocialSecurityTax: 0,
+    sCorpMedicareTax: 0,
+    sCorpTotalTax: 0,
+  }
+
   render() {
     return (
       <div className="App">
