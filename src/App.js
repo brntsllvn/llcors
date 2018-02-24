@@ -18,34 +18,34 @@ function calculateTax(income, taxTableKey) {
   return taxableIncome * taxRate;
 }
 
-// function calculateSCorpTax(sCorpIncome, sCorpDividend, taxTableKey) {
-//   if (!sCorpIncome && !sCorpDividend) {
-//     return 0;
-//   }
-//   if (!sCorpIncome) {
-//     sCorpIncome = 0;
-//   }
-//   if (!sCorpDividend) {
-//     sCorpDividend = 0;
-//   }
-//   var taxRate = getTaxRate(taxTableKey);
-//   var taxableIncome = getSCorpTaxableIncome(sCorpIncome, sCorpDividend, taxTableKey);
-//   return taxableIncome * taxRate;
-// }
+function calculateSCorpTax(sCorpIncome, sCorpDividend, taxTableKey) {
+  if (!sCorpIncome && !sCorpDividend) {
+    return 0;
+  }
+  if (!sCorpIncome) {
+    sCorpIncome = 0;
+  }
+  if (!sCorpDividend) {
+    sCorpDividend = 0;
+  }
+  var taxRate = getTaxRate(taxTableKey);
+  var taxableIncome = getSCorpTaxableIncome(sCorpIncome, sCorpDividend, taxTableKey);
+  return taxableIncome * taxRate;
+}
 
 function getTaxableIncome(income, taxName) {
   return taxName === 'social security' ? getSocialSecurityTax(income) : income;
 }
 
-// function getSCorpTaxableIncome(sCorpIncome, sCorpDividend, taxName) {
-//   if (taxName === 'medicare') {
-//     return sCorpIncome;
-//   } else if (taxName === 'social security') {
-//     return getSocialSecurityTax(sCorpIncome);
-//   } else {
-//     return sCorpIncome + sCorpDividend;
-//   }
-// }
+function getSCorpTaxableIncome(sCorpIncome, sCorpDividend, taxName) {
+  if (taxName === 'medicare') {
+    return sCorpIncome;
+  } else if (taxName === 'social security') {
+    return getSocialSecurityTax(sCorpIncome);
+  } else {
+    return sCorpIncome + sCorpDividend;
+  }
+}
 
 function getSocialSecurityTax(income) {
   return Math.min(128400, income);
@@ -97,17 +97,35 @@ class TaxForm extends Component {
     });
   }
 
-  // updateSCorpIncome(event) {
-  //   this.setState({
-  //     sCorpIncome: event.target.valueAsNumber
-  //   })
-  // }
+  updateSCorpTaxWithSalary = event => {
+    var updatedIncome = event.target.valueAsNumber;
+    var sCorpIncomeTax = calculateSCorpTax(updatedIncome, this.state.sCorpDividend, 'income');
+    var sCorpSocialSecurityTax = calculateSCorpTax(updatedIncome, this.state.sCorpDividend, 'social security');
+    var sCorpMedicareTax = calculateSCorpTax(updatedIncome, this.state.sCorpDividend, 'medicare');
+    var sCorpTotalTax = sCorpIncomeTax + sCorpSocialSecurityTax + sCorpMedicareTax;
+    this.setState({
+      sCorpIncome: updatedIncome,
+      sCorpIncomeTax: sCorpIncomeTax,
+      sCorpSocialSecurityTax: sCorpSocialSecurityTax,
+      sCorpMedicareTax: sCorpMedicareTax,
+      sCorpTotalTax: sCorpTotalTax
+    })
+  }
 
-  // updateSCorpDividend(event) {
-  //   this.setState({
-  //     sCorpDividend: event.target.valueAsNumber
-  //   })
-  // }
+  updateSCorpTaxWithDividend = event => {
+    var updatedDividend = event.target.valueAsNumber;
+    var sCorpIncomeTax = calculateSCorpTax(this.state.sCorpIncome, updatedDividend, 'income');
+    var sCorpSocialSecurityTax = calculateSCorpTax(this.state.sCorpIncome, updatedDividend, 'social security');
+    var sCorpMedicareTax = calculateSCorpTax(this.state.sCorpIncome, updatedDividend, 'medicare');
+    var sCorpTotalTax = sCorpIncomeTax + sCorpSocialSecurityTax + sCorpMedicareTax;
+    this.setState({
+      sCorpDividend: updatedDividend,
+      sCorpIncomeTax: sCorpIncomeTax,
+      sCorpSocialSecurityTax: sCorpSocialSecurityTax,
+      sCorpMedicareTax: sCorpMedicareTax,
+      sCorpTotalTax: sCorpTotalTax
+    })
+  }  
 
   renderTaxItem(label, tax) {    
     return (
@@ -118,36 +136,10 @@ class TaxForm extends Component {
     )
   }
 
-  /*renderSCorpTaxItem(label, taxTableKey) {
-    return (
-      <TaxItem 
-        label={label}
-        value={calculateSCorpTax(
-          this.state.sCorpIncome, 
-          this.state.sCorpDividend, 
-          taxTableKey
-        )}
-      />
-    )
-  }
-
-  renderTotalSCorpTaxItem(label) {
-    return (
-      <TaxItem 
-        label={label}
-        value={calculateTotalSCorpTax(
-          this.state.sCorpIncomeTax, 
-          this.state.sCorpSocialSecurityTax, 
-          this.state.sCorpMedicareTax
-        )}
-      />
-    )
-  }*/
-
-
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
+        <div>LLC</div>
         <div>
           Salary: 
           <input 
@@ -162,28 +154,29 @@ class TaxForm extends Component {
           {this.renderTaxItem('Total LLC Tax', this.state.llcTotalTax)}
         </div>
 
-        {/*<br></br>
+        <br></br>
 
+        <div>S Corp</div>
         <div>
           Salary: 
           <input 
-            onChange={this.updateSCorpIncome}
+            onChange={this.updateSCorpTaxWithSalary}
             type="number" 
           />
         </div>
         <div>
           Dividend: 
           <input 
-            onChange={this.updateSCorpDividend}
+            onChange={this.updateSCorpTaxWithDividend}
             type="number" 
           />
         </div>
         <div>
-          {this.renderSCorpTaxItem('Income Tax', 'income')}
-          {this.renderSCorpTaxItem('Social Security Tax', 'social security')}
-          {this.renderSCorpTaxItem('Medicare Tax', 'medicare')}
-          {this.renderTotalSCorpTaxItem('Total S Corp Tax')}
-        </div>*/}
+          {this.renderTaxItem('Income Tax', this.state.sCorpIncomeTax)}
+          {this.renderTaxItem('Social Security Tax', this.state.sCorpSocialSecurityTax)}
+          {this.renderTaxItem('Medicare Tax', this.state.sCorpMedicareTax)}
+          {this.renderTaxItem('Total S Corp Tax', this.state.sCorpTotalTax)}
+        </div>
       </form>
     )
   }
