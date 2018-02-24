@@ -9,28 +9,34 @@ function TaxItem(props) {
   )
 }
 
-
-function calculateTax(income, taxRate) {
+function calculateTax(income, taxTableKey) {
   if (!income) {
     return 0;
-  } else {
-    return income * taxRate;
-  }
+  } 
+  var taxRate = getTaxRate(taxTableKey);
+  var taxableIncome = getTaxableIncome(income, taxTableKey);
+  return (taxableIncome * taxRate).toFixed(2);
 }
 
-function getTaxRate(taxName) {
+function getTaxableIncome(income, taxName) {
+  return taxName === 'social security' ? getSocialSecurityTax(income) : income;
+}
+
+function getSocialSecurityTax(income) {
+  return Math.min(128400, income);
+}
+
+function getTaxRate(taxTableKey) {
   var taxRates = {
     'income': 0.2,
     'social security': 0.124,
     'medicare': 0.029,
     'total': 0.353
   }
-
-  if (!(taxRates[taxName])) {
-    throw 'Invalid tax name!'
+  if (!(taxRates[taxTableKey])) {
+    throw 'Invalid tax name!';
   }
-
-  return taxRates[taxName]
+  return taxRates[taxTableKey];
 }
 
 class TaxForm extends Component {
@@ -47,11 +53,11 @@ class TaxForm extends Component {
     })
   }
 
-  renderTaxItem(label, value) {
+  renderTaxItem(label, taxTableKey) {
     return (
       <TaxItem 
         label={label}
-        value={value}
+        value={calculateTax(this.state.income, taxTableKey)}
       />
     )
   }
@@ -65,10 +71,10 @@ class TaxForm extends Component {
             onChange={this.updateTax}
             type="number" 
           />
-          {this.renderTaxItem('Income Tax', calculateTax(this.state.income, getTaxRate('income')))}
-          {this.renderTaxItem('Social Security Tax', calculateTax(this.state.income, getTaxRate('social security')))}
-          {this.renderTaxItem('Medicare Tax', calculateTax(this.state.income, getTaxRate('medicare')))}
-          {this.renderTaxItem('Total Tax', calculateTax(this.state.income, getTaxRate('total')))}
+          {this.renderTaxItem('Income Tax', 'income')}
+          {this.renderTaxItem('Social Security Tax', 'social security')}
+          {this.renderTaxItem('Medicare Tax', 'medicare')}
+          {this.renderTaxItem('Total Tax', 'total')}
         </div>
       </form>
     )
