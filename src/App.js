@@ -1,18 +1,10 @@
 import React, { Component } from 'react';
-// import './App.css';
 import './simple-grid.css';
 
 function TaxItem(props) {
   return (
     <div>
-      {props.label}: {props.value.toLocaleString(
-                        'en-US', 
-                        {
-                          style:'currency',
-                          currency:'USD',
-                          minimumFractionDigits:2,
-                          maximumFractionDigits:2
-                        })}
+      {props.label}: {prettyDollar(props.value)}
     </div>
   )
 }
@@ -71,6 +63,22 @@ function getTaxRate(taxTableKey) {
   return taxRates[taxTableKey];
 }
 
+function printTaxDiff(llcTotalTax, sCorpTotalTax) {
+    var taxDiff = llcTotalTax - sCorpTotalTax;
+    return prettyDollar(taxDiff);
+  }
+
+function prettyDollar(value) {
+  return value.toLocaleString(
+    'en-US', 
+    {
+      style:'currency',
+      currency:'USD',
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    });
+}
+
 class TaxForm extends Component {
   state = {
     llcIncome: 0, 
@@ -83,7 +91,7 @@ class TaxForm extends Component {
     sCorpIncomeTax: 0,
     sCorpSocialSecurityTax: 0,
     sCorpMedicareTax: 0,
-    sCorpTotalTax: 0,
+    sCorpTotalTax: 0
   }
 
   handleSubmit = event => {
@@ -134,6 +142,10 @@ class TaxForm extends Component {
       sCorpTotalTax: sCorpTotalTax
     })
   }  
+
+  llcOrSCorp() {
+    return this.state.llcTotalTax < this.state.sCorpTotalTax ? 'LLC' : 'S Corp'
+  }
 
   renderTaxItem(label, tax) {    
     return (
@@ -194,6 +206,16 @@ class TaxForm extends Component {
           </div>
           <div className='col-2'></div>
         </div>
+
+        <div className='row'>
+          <div className='col-2'></div>
+          <div className='col-4'>
+            <div>Difference: {printTaxDiff(this.state.llcTotalTax, this.state.sCorpTotalTax)}</div>
+            <div>Choose: {this.llcOrSCorp()}</div>
+          </div>
+          <div className='col-6'></div>
+        </div>
+
       </form>
     )
   }
