@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import './App.css';
+// import './App.css';
+import './simple-grid.css';
 
 function TaxItem(props) {
   return (
     <div>
-      {props.label}: {props.value}
+      {props.label}: {props.value.toLocaleString(
+                        'en-US', 
+                        {
+                          style:'currency',
+                          currency:'USD',
+                          minimumFractionDigits:2,
+                          maximumFractionDigits:2
+                        })}
     </div>
   )
 }
@@ -139,43 +147,52 @@ class TaxForm extends Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <div>LLC</div>
-        <div>
-          Salary: 
-          <input 
-            onChange={this.updateLlcTax}
-            type="number" 
-          />
-        </div>
-        <div>
-          {this.renderTaxItem('Income Tax', this.state.llcIncomeTax)}
-          {this.renderTaxItem('Social Security Tax', this.state.llcSocialSecurityTax)}
-          {this.renderTaxItem('Medicare Tax', this.state.llcMedicareTax)}
-          {this.renderTaxItem('Total LLC Tax', this.state.llcTotalTax)}
-        </div>
+        <div className='row'>
+          <div className='col-2'></div>
+          <div className='col-4'>
+            <div>LLC</div>
+            <div>
+              Salary: 
+              <input 
+                onChange={this.updateLlcTax}
+                type="number" 
+              />
+            </div>
+            <div>
+              Dividend: -
+            </div>
+            <div>
+              {this.renderTaxItem('Income Tax', this.state.llcIncomeTax)}
+              {this.renderTaxItem('Social Security Tax', this.state.llcSocialSecurityTax)}
+              {this.renderTaxItem('Medicare Tax', this.state.llcMedicareTax)}
+              {this.renderTaxItem('Total LLC Tax', this.state.llcTotalTax)}
+            </div>
+          </div>
 
-        <br></br>
-
-        <div>S Corp</div>
-        <div>
-          Salary: 
-          <input 
-            onChange={this.updateSCorpTaxWithSalary}
-            type="number" 
-          />
-        </div>
-        <div>
-          Dividend: 
-          <input 
-            onChange={this.updateSCorpTaxWithDividend}
-            type="number" 
-          />
-        </div>
-        <div>
-          {this.renderTaxItem('Income Tax', this.state.sCorpIncomeTax)}
-          {this.renderTaxItem('Social Security Tax', this.state.sCorpSocialSecurityTax)}
-          {this.renderTaxItem('Medicare Tax', this.state.sCorpMedicareTax)}
-          {this.renderTaxItem('Total S Corp Tax', this.state.sCorpTotalTax)}
+          <div className='col-4'>
+            <div>S Corp</div>
+            <div>
+              Salary: 
+              <input 
+                onChange={this.updateSCorpTaxWithSalary}
+                type="number" 
+              />
+            </div>
+            <div>
+              Dividend: 
+              <input 
+                onChange={this.updateSCorpTaxWithDividend}
+                type="number" 
+              />
+            </div>
+            <div>
+              {this.renderTaxItem('Income Tax', this.state.sCorpIncomeTax)}
+              {this.renderTaxItem('Social Security Tax', this.state.sCorpSocialSecurityTax)}
+              {this.renderTaxItem('Medicare Tax', this.state.sCorpMedicareTax)}
+              {this.renderTaxItem('Total S Corp Tax', this.state.sCorpTotalTax)}
+            </div>
+          </div>
+          <div className='col-2'></div>
         </div>
       </form>
     )
